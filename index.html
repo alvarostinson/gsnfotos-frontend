@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="theme-color" content="#1a1a2e" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="GSNFotos" />
+  <title>GSNFotos</title>
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+    :root {
+      --bg: #0f0f1a;
+      --surface: #1a1a2e;
+      --surface2: #22223a;
+      --border: #2e2e4a;
+      --accent: #c084fc;
+      --accent-dim: #7c3aed22;
+      --accent-solid: #7c3aed;
+      --text: #e8e8f0;
+      --text-muted: #7070a0;
+      --success: #34d399;
+      --error: #f87171;
+      --warning: #fbbf24;
+      --radius: 14px;
+      --radius-sm: 8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 20px 20px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent-solid), #a855f7);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .logo svg { width: 20px; height: 20px; }
+
+    header h1 {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.3px;
+    }
+
+    header span {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: 'DM Mono', monospace;
+    }
+
+    main {
+      flex: 1;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* --- Backend offline banner --- */
+    #offline-banner {
+      background: #2a1a00;
+      border: 1px solid #fbbf2440;
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      font-size: 13px;
+      color: var(--warning);
+      display: none;
+    }
+    #offline-banner.visible { display: block; }
+    #offline-banner strong { display: block; margin-bottom: 2px; }
+
+    /* --- Card --- */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+    }
+
+    .field-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 18px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      padding: 13px 14px;
+      outline: none;
+      text-transform: uppercase;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent);
+    }
+
+    input[type="text"]::placeholder {
+      color: var(--text-muted);
+      font-size: 14px;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
+    /* --- Type pills --- */
+    .pills {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+
+    .pill {
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 11px 6px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+      user-select: none;
+    }
+
+    .pill:hover { border-color: var(--accent); color: var(--accent); }
+
+    .pill.active {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .pill-icon { display: block; font-size: 20px; margin-bottom: 3px; }
+
+    /* --- Drop zone --- */
+    .dropzone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 32px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .dropzone:hover, .dropzone.drag-over {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    .dropzone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .dropzone-icon { font-size: 36px; margin-bottom: 8px; }
+
+    .dropzone-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .dropzone-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* --- Preview grid --- */
+    .preview-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .preview-item {
+      position: relative;
+      aspect-ratio: 1;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      background: var(--surface2);
+    }
+
+    .preview-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .preview-item .remove-btn {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background: #000000bb;
+      border: none;
+      border-radius: 50%;
+      color: white;
+      width: 22px;
+      height: 22px;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
+    .preview-item .status-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      backdrop-filter: blur(2px);
+    }
+
+    .preview-item .status-overlay.uploading { background: #00000066; }
+    .preview-item .status-overlay.done { background: #00000044; }
+    .preview-item .status-overlay.error { background: #ff000033; }
+
+    .preview-count {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 4px;
+    }
+
+    /* --- Upload button --- */
+    .btn-upload {
+      width: 100%;
+      background: linear-gradient(135deg, var(--accent-solid), #a855f7);
+      border: none;
+      border-radius: var(--radius);
+      color: white;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      padding: 16px;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      letter-spacing: -0.2px;
+    }
+
+    .btn-upload:active { transform: scale(0.98); }
+    .btn-upload:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* --- Progress bar --- */
+    .progress-wrap {
+      background: var(--surface2);
+      border-radius: 99px;
+      height: 6px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-solid), #a855f7);
+      border-radius: 99px;
+      transition: width 0.3s;
+      width: 0%;
+    }
+
+    .progress-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 6px;
+      text-align: center;
+    }
+
+    /* --- Log --- */
+    .log {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+      max-height: 120px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .log-line { line-height: 1.4; }
+    .log-line.ok { color: var(--success); }
+    .log-line.err { color: var(--error); }
+
+    /* --- Toast --- */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 18px;
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+      transition: transform 0.3s;
+      z-index: 200;
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.success { border-color: var(--success); color: var(--success); }
+    .toast.error { border-color: var(--error); color: var(--error); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="3"/>
+      <circle cx="8.5" cy="8.5" r="1.5"/>
+      <polyline points="21 15 16 10 5 21"/>
+    </svg>
+  </div>
+  <div>
+    <h1>GSNFotos</h1>
+    <span>Produtos · Drive</span>
+  </div>
+</header>
+
+<main>
+
+  <div id="offline-banner">
+    <strong>⚠️ Servidor indisponível</strong>
+    Não foi possível conectar ao backend. Verifique sua internet ou avise o time técnico.
+  </div>
+
+  <!-- SKU -->
+  <div class="card">
+    <div class="field-label">Código do produto (SKU)</div>
+    <input type="text" id="sku-input" placeholder="Ex: ANE001" autocomplete="off" autocorrect="off" spellcheck="false" />
+  </div>
+
+  <!-- Tipo -->
+  <div class="card">
+    <div class="field-label">Tipo de foto</div>
+    <div class="pills">
+      <div class="pill" data-type="natural" onclick="selectType('natural')">
+        <span class="pill-icon">📷</span>Natural
+      </div>
+      <div class="pill" data-type="modelo" onclick="selectType('modelo')">
+        <span class="pill-icon">👤</span>Modelo
+      </div>
+      <div class="pill" data-type="ia" onclick="selectType('ia')">
+        <span class="pill-icon">✨</span>IA
+      </div>
+    </div>
+  </div>
+
+  <!-- Fotos -->
+  <div class="card">
+    <div class="field-label">Fotos</div>
+    <div class="dropzone" id="dropzone">
+      <input type="file" id="file-input" accept="image/*" multiple />
+      <div class="dropzone-icon">🖼️</div>
+      <div class="dropzone-text">Selecionar fotos</div>
+      <div class="dropzone-sub">Toque para abrir a galeria · Múltiplas permitidas</div>
+    </div>
+
+    <div id="preview-section" style="display:none; margin-top:12px;">
+      <div class="preview-grid" id="preview-grid"></div>
+      <div class="preview-count" id="preview-count"></div>
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div class="card" id="progress-card" style="display:none;">
+    <div class="field-label">Enviando</div>
+    <div class="progress-wrap">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    <div class="progress-label" id="progress-label">0 de 0</div>
+    <div class="log" id="log" style="margin-top:10px;"></div>
+  </div>
+
+  <!-- Botão -->
+  <button class="btn-upload" id="upload-btn" disabled onclick="startUpload()">
+    Enviar para o Drive
+  </button>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ─── Configuração fixa ──────────────────────────────────────
+  // Única coisa que muda entre ambientes: a URL do backend.
+  // Em produção, troque pela URL do Railway após o deploy.
+  const BACKEND_URL = 'https://gsnfotos-production.up.railway.app';
+
+  // ─── State ───────────────────────────────────────────────────
+  let selectedType = null;
+  let selectedFiles = [];
+
+  // ─── Checagem de backend ───────────────────────────────────
+  async function checkBackend() {
+    const banner = document.getElementById('offline-banner');
+    try {
+      const res = await fetch(`${BACKEND_URL}/health`);
+      if (res.ok) {
+        banner.classList.remove('visible');
+        return;
+      }
+      throw new Error();
+    } catch {
+      banner.classList.add('visible');
+    }
+  }
+
+  // ─── Type selection ──────────────────────────────────────────
+  function selectType(type) {
+    selectedType = type;
+    document.querySelectorAll('.pill').forEach(p => {
+      p.classList.toggle('active', p.dataset.type === type);
+    });
+    validateForm();
+  }
+
+  // ─── File input ──────────────────────────────────────────────
+  document.getElementById('file-input').addEventListener('change', function(e) {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+    selectedFiles = files;
+    renderPreviews();
+    validateForm();
+  });
+
+  const dropzone = document.getElementById('dropzone');
+  dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag-over'); });
+  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
+  dropzone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropzone.classList.remove('drag-over');
+    const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+    if (!files.length) return;
+    selectedFiles = files;
+    renderPreviews();
+    validateForm();
+  });
+
+  function renderPreviews() {
+    const grid = document.getElementById('preview-grid');
+    const section = document.getElementById('preview-section');
+    const count = document.getElementById('preview-count');
+    grid.innerHTML = '';
+    selectedFiles.forEach((file, i) => {
+      const url = URL.createObjectURL(file);
+      const item = document.createElement('div');
+      item.className = 'preview-item';
+      item.id = `preview-${i}`;
+      item.innerHTML = `
+        <img src="${url}" alt="" />
+        <button class="remove-btn" onclick="removeFile(${i})">✕</button>
+      `;
+      grid.appendChild(item);
+    });
+    count.textContent = `${selectedFiles.length} foto${selectedFiles.length > 1 ? 's' : ''} selecionada${selectedFiles.length > 1 ? 's' : ''}`;
+    section.style.display = selectedFiles.length ? 'block' : 'none';
+  }
+
+  function removeFile(index) {
+    selectedFiles.splice(index, 1);
+    renderPreviews();
+    validateForm();
+  }
+
+  // ─── Form validation ──────────────────────────────────────────
+  function validateForm() {
+    const sku = document.getElementById('sku-input').value.trim();
+    const btn = document.getElementById('upload-btn');
+    btn.disabled = !(sku && selectedType && selectedFiles.length);
+  }
+
+  document.getElementById('sku-input').addEventListener('input', validateForm);
+
+  // ─── Upload ───────────────────────────────────────────────────
+  // Agora é uma única requisição para o backend, que cuida de
+  // tudo: autenticação, criação de pasta e upload de cada foto.
+  async function startUpload() {
+    const sku = document.getElementById('sku-input').value.trim().toUpperCase();
+    const btn = document.getElementById('upload-btn');
+    btn.disabled = true;
+
+    document.getElementById('progress-card').style.display = 'block';
+    document.getElementById('log').innerHTML = '';
+    addLog('⏳ Enviando para o servidor...', 'ok');
+    updateProgress(0, selectedFiles.length);
+
+    selectedFiles.forEach((_, i) => setPreviewStatus(i, 'uploading'));
+
+    try {
+      const form = new FormData();
+      form.append('sku', sku);
+      form.append('tipo', selectedType);
+      selectedFiles.forEach(file => form.append('fotos', file));
+
+      const res = await fetch(`${BACKEND_URL}/upload`, {
+        method: 'POST',
+        body: form,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || data.error) {
+        throw new Error(data.error || 'Falha no upload.');
+      }
+
+      selectedFiles.forEach((_, i) => setPreviewStatus(i, 'done'));
+      updateProgress(selectedFiles.length, selectedFiles.length);
+      data.arquivos.forEach(name => addLog(`✓ ${name}`, 'ok'));
+
+      showToast(`${data.arquivos.length} foto${data.arquivos.length > 1 ? 's' : ''} enviada${data.arquivos.length > 1 ? 's' : ''} com sucesso!`, 'success');
+      setTimeout(resetForm, 1800);
+
+    } catch (e) {
+      selectedFiles.forEach((_, i) => setPreviewStatus(i, 'error'));
+      addLog(`✗ Erro: ${e.message}`, 'err');
+      showToast('Erro no upload — veja o log', 'error');
+      btn.disabled = false;
+    }
+  }
+
+  // ─── UI helpers ───────────────────────────────────────────────
+  function updateProgress(done, total) {
+    const pct = total ? Math.round((done / total) * 100) : 0;
+    document.getElementById('progress-bar').style.width = pct + '%';
+    document.getElementById('progress-label').textContent = `${done} de ${total}`;
+  }
+
+  function setPreviewStatus(index, status) {
+    const item = document.getElementById(`preview-${index}`);
+    if (!item) return;
+    let overlay = item.querySelector('.status-overlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.className = 'status-overlay';
+      item.appendChild(overlay);
+    }
+    overlay.className = `status-overlay ${status}`;
+    overlay.textContent = status === 'uploading' ? '⏳' : status === 'done' ? '✅' : '❌';
+  }
+
+  function addLog(msg, type) {
+    const log = document.getElementById('log');
+    const line = document.createElement('div');
+    line.className = `log-line ${type}`;
+    line.textContent = msg;
+    log.appendChild(line);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function resetForm() {
+    document.getElementById('sku-input').value = '';
+    selectedType = null;
+    selectedFiles = [];
+    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    document.getElementById('preview-section').style.display = 'none';
+    document.getElementById('preview-grid').innerHTML = '';
+    document.getElementById('progress-card').style.display = 'none';
+    document.getElementById('upload-btn').disabled = true;
+    document.getElementById('file-input').value = '';
+  }
+
+  let toastTimer;
+  function showToast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `toast show ${type}`;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // ─── Init ─────────────────────────────────────────────────────
+  checkBackend();
+</script>
+
+</body>
+</html>
